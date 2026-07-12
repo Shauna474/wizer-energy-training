@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <title>Wizer Energy — Field Training</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The Wizer Energy field guide for new hires — solar PV, batteries, EV chargers, our sales process, SEAI grants, and how we work.">
+<meta name="theme-color" content="#0b2140">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='11' fill='%23FFC72C'/%3E%3Cg stroke='%23FFC72C' stroke-width='3' stroke-linecap='round'%3E%3Cline x1='24' y1='3' x2='24' y2='9'/%3E%3Cline x1='24' y1='39' x2='24' y2='45'/%3E%3Cline x1='3' y1='24' x2='9' y2='24'/%3E%3Cline x1='39' y1='24' x2='45' y2='24'/%3E%3Cline x1='9' y1='9' x2='13' y2='13'/%3E%3Cline x1='35' y1='35' x2='39' y2='39'/%3E%3Cline x1='9' y1='39' x2='13' y2='35'/%3E%3Cline x1='35' y1='13' x2='39' y2='9'/%3E%3C/g%3E%3C/svg%3E">
+<meta property="og:title" content="Wizer Energy — Field Training">
+<meta property="og:description" content="The Wizer Energy field guide for new hires — solar, batteries, sales, SEAI grants, and how we work.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wizer-energy-training.vercel.app/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -527,6 +534,32 @@
 </div>
 
 <script>
+/* ============================= STORAGE SHIM =============================
+   Inside a Claude Artifact, window.storage is provided (shared, server-side).
+   When this page is hosted anywhere else (e.g. Vercel), that API doesn't
+   exist, so we fall back to the browser's localStorage. Without this, every
+   save silently failed and edits/photos/PINs/backups vanished on refresh.
+   Data saved this way is per-browser on the viewer's own device.            */
+(function(){
+  if (window.storage && typeof window.storage.get === 'function') return;
+  const mem = {}; // last-resort fallback if localStorage is unavailable
+  const ls = (() => { try { const k='__wz'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; } catch(e){ return false; } })();
+  window.storage = {
+    async get(key){
+      let v;
+      if (ls) v = localStorage.getItem(key); else v = (key in mem ? mem[key] : null);
+      return (v === null || v === undefined) ? null : { value: v };
+    },
+    async set(key, value){
+      try { if (ls) localStorage.setItem(key, value); else mem[key] = value; }
+      catch(e){ console.warn('Wizer: could not save "'+key+'" (storage full?)', e); }
+    },
+    async delete(key){
+      try { if (ls) localStorage.removeItem(key); else delete mem[key]; } catch(e){}
+    },
+  };
+})();
+
 /* ============================= DATA MODEL ============================= */
 const SECTION_DEFS = [
   { id:'welcome', label:'Welcome', icon:'sun', hasCards:false },
