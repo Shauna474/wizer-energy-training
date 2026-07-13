@@ -11,6 +11,7 @@
 <meta property="og:description" content="The Wizer Energy field guide for new hires — solar, batteries, sales, SEAI grants, and how we work.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://wizer-energy-training.vercel.app/">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -535,27 +536,64 @@
 
 <script>
 /* ============================= STORAGE SHIM =============================
-   Inside a Claude Artifact, window.storage is provided (shared, server-side).
-   When this page is hosted anywhere else (e.g. Vercel), that API doesn't
-   exist, so we fall back to the browser's localStorage. Without this, every
-   save silently failed and edits/photos/PINs/backups vanished on refresh.
-   Data saved this way is per-browser on the viewer's own device.            */
+   Inside a Claude Artifact, window.storage is provided natively and we leave
+   it alone. When hosted elsewhere (Vercel), we back the same API with a
+   Supabase cloud database so edits are saved centrally, shared with every
+   trainee, and safe from browser-data loss. localStorage is used as an
+   instant local cache and an offline fallback if the cloud is unreachable.  */
 (function(){
+  // Native storage inside a Claude Artifact — don't override it.
   if (window.storage && typeof window.storage.get === 'function') return;
-  const mem = {}; // last-resort fallback if localStorage is unavailable
-  const ls = (() => { try { const k='__wz'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; } catch(e){ return false; } })();
+
+  const SUPABASE_URL = 'https://sxnvuxvrtcepmxxcpnjv.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_bbhsaudLyskG1K8IY0o_HA_zWhMYAXK';
+
+  // ---- local cache / fallback (browser localStorage, or memory as last resort) ----
+  const mem = {};
+  const lsOK = (() => { try { const k='__wz'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; } catch(e){ return false; } })();
+  const local = {
+    async get(key){ const v = lsOK ? localStorage.getItem(key) : (key in mem ? mem[key] : null); return (v==null) ? null : {value:v}; },
+    async set(key, value){ try{ if(lsOK) localStorage.setItem(key, value); else mem[key]=value; }catch(e){ console.warn('Wizer: local cache save failed', e); } },
+    async delete(key){ try{ if(lsOK) localStorage.removeItem(key); else delete mem[key]; }catch(e){} },
+  };
+
+  // ---- try to bring up the Supabase cloud client ----
+  let sb = null;
+  try {
+    if (window.supabase && SUPABASE_URL && SUPABASE_KEY && !SUPABASE_URL.includes('YOUR-')) {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  } catch(e){ console.warn('Wizer: Supabase init failed, using local storage only', e); }
+
+  // No cloud available → behave like the old localStorage-only shim.
+  if (!sb) { window.storage = local; return; }
+
+  // Cloud-backed storage: read/write the cloud, mirror to the local cache.
   window.storage = {
     async get(key){
-      let v;
-      if (ls) v = localStorage.getItem(key); else v = (key in mem ? mem[key] : null);
-      return (v === null || v === undefined) ? null : { value: v };
+      try {
+        const { data, error } = await sb.from('kv').select('value').eq('key', key).maybeSingle();
+        if (error) throw error;
+        if (data) { local.set(key, data.value); return { value: data.value }; }
+        return await local.get(key); // not in cloud yet — use cached copy if any
+      } catch(e){
+        console.warn('Wizer: cloud read failed, using local cache for "'+key+'"', e);
+        return await local.get(key);
+      }
     },
     async set(key, value){
-      try { if (ls) localStorage.setItem(key, value); else mem[key] = value; }
-      catch(e){ console.warn('Wizer: could not save "'+key+'" (storage full?)', e); }
+      await local.set(key, value); // cache instantly so the UI never blocks
+      try {
+        const { error } = await sb.from('kv').upsert({ key, value, updated_at: new Date().toISOString() });
+        if (error) throw error;
+      } catch(e){
+        console.warn('Wizer: cloud save failed (local copy kept) for "'+key+'"', e);
+      }
     },
     async delete(key){
-      try { if (ls) localStorage.removeItem(key); else delete mem[key]; } catch(e){}
+      await local.delete(key);
+      try { const { error } = await sb.from('kv').delete().eq('key', key); if (error) throw error; }
+      catch(e){ console.warn('Wizer: cloud delete failed for "'+key+'"', e); }
     },
   };
 })();
