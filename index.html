@@ -1563,6 +1563,8 @@ async function loadDuck(){
       duckScore = typeof v.clicks==='number' ? v.clicks : 0;
     }
   }catch(e){ /* keep defaults */ }
+  // if the duck was left on a now-hidden section, move it somewhere visible
+  if(hiddenSections.includes(duckSection)){ duckSection = randomVisibleSection(duckSection); saveDuck(); }
   renderDuckScore();
 }
 
@@ -1596,11 +1598,17 @@ function renderDuck(){
   wrap.appendChild(el);
 }
 
+// Pick a random section the duck is allowed to land on: visible only, never
+// the one it's already on. Falls back to Welcome (which can't be hidden).
+function randomVisibleSection(excludeId){
+  const pool = SECTION_DEFS.map(s=>s.id).filter(id => !hiddenSections.includes(id) && id!==excludeId);
+  return pool.length ? pool[Math.floor(Math.random()*pool.length)] : 'welcome';
+}
+
 async function onDuckClick(){
   const el = document.getElementById('hiddenDuck');
   const curIdx = SECTION_DEFS.findIndex(s=>s.id===currentSection);
-  const others = SECTION_DEFS.map(s=>s.id).filter(id=>id!==duckSection);
-  duckSection = others[Math.floor(Math.random()*others.length)];
+  duckSection = randomVisibleSection(duckSection);
   const newIdx = SECTION_DEFS.findIndex(s=>s.id===duckSection);
   const jumpUp = newIdx < curIdx;
   if(el) el.classList.add(jumpUp ? 'duck-jump-up' : 'duck-jump-down');
@@ -1741,6 +1749,8 @@ function renderNav(){
       if(hiddenSections.includes(id)) hiddenSections = hiddenSections.filter(x=>x!==id);
       else hiddenSections.push(id);
       saveHidden();
+      // don't strand the duck on a section that was just hidden
+      if(hiddenSections.includes(duckSection)){ duckSection = randomVisibleSection(duckSection); saveDuck(); renderDuck(); }
       renderNav();
       showToast(hiddenSections.includes(id) ? 'Section hidden from trainees' : 'Section is now visible to trainees');
     });
