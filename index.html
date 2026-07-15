@@ -108,6 +108,17 @@
   .nav-item .nav-num{font-family:'IBM Plex Mono';font-size:0.7rem;opacity:0.5;width:16px;flex-shrink:0;}
   .nav-item .nav-ico{width:20px;height:20px;flex-shrink:0;}
   .nav-item .nav-label{font-size:0.87rem;font-weight:600;flex:1;}
+  .nav-item.nav-hidden{opacity:0.5;}
+  .nav-item.nav-hidden .nav-label{text-decoration:line-through; text-decoration-color:rgba(255,255,255,0.5);}
+  .nav-vis-toggle{
+    display:none; flex-shrink:0; align-items:center; justify-content:center;
+    width:26px; height:26px; padding:0; border:none; border-radius:7px;
+    background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); cursor:pointer;
+  }
+  .nav-vis-toggle svg{width:15px; height:15px;}
+  .nav-vis-toggle:hover{background:rgba(255,255,255,0.22); color:#fff;}
+  .nav-item.active .nav-vis-toggle{background:rgba(11,33,64,0.15); color:var(--navy-deep);}
+  .edit-on .nav-vis-toggle{display:inline-flex;}
 
   .nav-search-wrap{position:relative; margin:2px var(--pad) 8px;}
   .nav-search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px;height:15px;
@@ -1075,6 +1086,7 @@ let resources = null;
 let editMode = false;
 let currentSection = 'welcome';
 let hasPin = false;
+let hiddenSections = []; // section ids hidden from trainees (visible to editors)
 let pendingPinAction = null; // 'set' | 'verify'
 let resFilter = 'all';
 let navQuery = '';
@@ -1357,8 +1369,16 @@ async function loadAll(){
     const m = await window.storage.get('wizer-meta', true);
     lastUpdated = m ? JSON.parse(m.value).updatedAt : null;
   }catch(e){ lastUpdated = null; }
+
+  try{
+    const hs = await window.storage.get('wizer-hidden', true);
+    hiddenSections = hs ? JSON.parse(hs.value) : [];
+  }catch(e){ hiddenSections = []; }
+
   renderVersionStamp();
 }
+
+async function saveHidden(){ try{ await window.storage.set('wizer-hidden', JSON.stringify(hiddenSections), true); }catch(e){} }
 
 async function saveWithRetry(key, valueGetter, label){
   const delays = [400, 1200, 2500]; // increasing backoff between attempts
@@ -1686,23 +1706,44 @@ function sectionMatches(def, q){
   return list.some(card => stripHtml(card.title).toLowerCase().includes(q) || stripHtml(card.body).toLowerCase().includes(q));
 }
 
+const EYE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 5.1A9.8 9.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.3 4M6.1 6.1A17 17 0 0 0 2 12s3.5 7 10 7a9.8 9.8 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
+
 function renderNav(){
   const nav = document.getElementById('navSections');
-  const visible = SECTION_DEFS.filter(s => sectionMatches(s, navQuery));
+  // hidden sections show only while editing (so they can be worked on and re-published)
+  const visible = SECTION_DEFS.filter(s => sectionMatches(s, navQuery) && (editMode || !hiddenSections.includes(s.id)));
   if(!visible.length){
     nav.innerHTML = `<div class="nav-empty">No matches for "${navQuery}"</div>`;
     return;
   }
   nav.innerHTML = visible.map((s)=>{
     const i = SECTION_DEFS.indexOf(s);
-    return `<div class="nav-item ${s.id===currentSection?'active':''}" data-id="${s.id}">
+    const isHidden = hiddenSections.includes(s.id);
+    const canToggle = s.id !== 'welcome'; // always keep a landing page
+    const toggle = canToggle
+      ? `<button class="nav-vis-toggle" data-vis="${s.id}" title="${isHidden?'Hidden from trainees — click to show':'Visible to trainees — click to hide'}">${isHidden?EYE_OFF_SVG:EYE_SVG}</button>`
+      : '';
+    return `<div class="nav-item ${s.id===currentSection?'active':''} ${isHidden?'nav-hidden':''}" data-id="${s.id}">
       <span class="nav-num">${String(i+1).padStart(2,'0')}</span>
       <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[s.icon]}</svg>
       <span class="nav-label">${s.label}</span>
+      ${toggle}
     </div>`;
   }).join('');
   nav.querySelectorAll('.nav-item').forEach(el=>{
     el.addEventListener('click', ()=> selectSection(el.dataset.id));
+  });
+  nav.querySelectorAll('.nav-vis-toggle').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = btn.dataset.vis;
+      if(hiddenSections.includes(id)) hiddenSections = hiddenSections.filter(x=>x!==id);
+      else hiddenSections.push(id);
+      saveHidden();
+      renderNav();
+      showToast(hiddenSections.includes(id) ? 'Section hidden from trainees' : 'Section is now visible to trainees');
+    });
   });
 }
 
@@ -2513,6 +2554,9 @@ function setEditMode(on){
   document.getElementById('editToggle').classList.toggle('on', on);
   document.getElementById('editBtnLabel').textContent = on ? 'Editing on — click to stop' : 'Enable editing';
   applyEditableState();
+  // when editing stops, don't leave the viewer parked on a now-hidden section
+  if(!on && hiddenSections.includes(currentSection)){ selectSection('welcome'); }
+  else { renderNav(); }
 }
 
 document.getElementById('editToggle').addEventListener('click', ()=>{
