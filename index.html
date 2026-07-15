@@ -434,6 +434,27 @@
   .prio-add-btn{margin-top:16px;}
   .modal .err{color:#c8433a; font-size:0.8rem; margin:-8px 0 12px; display:none;}
 
+  /* ---------- orange "key takeaways" callout ---------- */
+  .key-takeaways{
+    background:#fff3e6;
+    border:1px solid #ffd3a3;
+    border-left:5px solid #f28c1e;
+    border-radius:var(--radius-md);
+    padding:16px 20px 14px;
+    margin:24px 0 8px;
+  }
+  .key-takeaways .kt-head{
+    display:flex; align-items:center; gap:8px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700; font-size:0.8rem;
+    text-transform:uppercase; letter-spacing:0.09em;
+    color:#c25e00; margin-bottom:10px;
+  }
+  .key-takeaways .kt-head svg{width:18px; height:18px; flex:none; stroke:#f28c1e;}
+  .key-takeaways ul{margin:0; padding-left:20px;}
+  .key-takeaways li{margin:6px 0; color:var(--ink); line-height:1.5;}
+  .key-takeaways li::marker{color:#f28c1e;}
+
   ::-webkit-scrollbar{width:10px;}
   ::-webkit-scrollbar-thumb{background:rgba(11,33,64,0.18); border-radius:8px;}
 </style>
@@ -738,7 +759,8 @@ const DEFAULT_CONTENT = {
   },
   seai: {
     title: "SEAI",
-    body: `<p>SEAI (the Sustainable Energy Authority of Ireland) runs the grant schemes that fund most of our customers' solar installs. We work exclusively through the <strong>Individual Grant</strong> route, but it's worth knowing the other two schemes exist so you can answer questions accurately if a customer asks about them.</p>`
+    body: `<p>SEAI (the Sustainable Energy Authority of Ireland) runs the grant schemes that fund most of our customers' solar installs. We work exclusively through the <strong>Individual Grant</strong> route, but it's worth knowing the other two schemes exist so you can answer questions accurately if a customer asks about them.</p>
+      <div class="key-takeaways"><div class="kt-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="5"/><path d="M10.5 12.5 21 2"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2.5 2.5"/></svg>Key Takeaways</div><ul><li>We only use the <strong>Individual Grant</strong> route — €700/kWp for the first 2kWp, then €200/kWp, capped at <strong>€1,800</strong> for 4kWp+ systems.</li><li><strong>Never start an install</strong> until the homeowner has their Letter of Offer.</li><li>Property must be built &amp; occupied <strong>before 2021</strong>, and it's <strong>one grant per property</strong> (tracked by MPRN).</li><li>The grant is paid to the <strong>homeowner</strong> after works and documentation (Declaration of Works, BER) are submitted.</li><li><strong>OSS</strong> and <strong>Warmer Homes</strong> aren't our route — just know they exist so you can answer questions and point customers to SEAI.</li></ul></div>`
   },
   crm: {
     title: "Using Our CRM",
