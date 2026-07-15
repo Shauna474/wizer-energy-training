@@ -454,6 +454,8 @@
   .key-takeaways ul{margin:0; padding-left:20px;}
   .key-takeaways li{margin:6px 0; color:var(--ink); line-height:1.5;}
   .key-takeaways li::marker{color:#f28c1e;}
+  /* when it sits inside the card grid, it becomes a grid cell beside the last card */
+  .key-takeaways.kt-grid{margin:0; align-self:start;}
 
   ::-webkit-scrollbar{width:10px;}
   ::-webkit-scrollbar-thumb{background:rgba(11,33,64,0.18); border-radius:8px;}
@@ -741,7 +743,13 @@ const DEFAULT_CONTENT = {
     title: "About Wizer Energy",
     body: `<p>Wizer Energy installs solar PV and battery storage systems for homes and businesses across Ireland. We're a small, close-knit team, which means every job — and every customer conversation — matters, and it also means what you learn here has a direct impact on how smoothly the whole operation runs.</p>
       <p><em>[Supervisor note: personalise this section with our actual founding story, values, service areas, and team structure — click "Enable editing" to update it.]</em></p>
-      <ul><li>What we install: solar PV, battery storage (SigEnergy), EV charging</li><li>Where we operate: [add coverage area]</li><li>What makes us different: [add your pitch here]</li></ul>`
+      <ul><li>What we install: solar PV, battery storage (SigEnergy), EV charging</li><li>Where we operate: [add coverage area]</li><li>What makes us different: [add your pitch here]</li></ul>`,
+    takeaways: [
+      'Wizer Energy was founded in <strong>2020</strong> by Martin &amp; Slaven; the team has 11 years installing solar PV and <strong>7,000+ jobs</strong> nationwide.',
+      'Our five differentiators: proven track record, <strong>in-house registered installers</strong> (no subcontracting), honest straight-talking sales, real after-sales support, and full compliance (grants, NC6, certification).',
+      'As a Sales Executive you&rsquo;re usually the customer&rsquo;s <strong>first human contact</strong> &mdash; the first proof point of that trust.',
+      'Success looks like customers who feel <strong>informed, not sold to</strong>, accurate info every time, and clean handovers to the technical team.'
+    ]
   },
   team: {
     title: "Meet the Team",
@@ -751,16 +759,34 @@ const DEFAULT_CONTENT = {
   sales: {
     title: "Sales Process",
     body: `<p>This is how a job moves from first contact to a signed customer, and where you fit into each step. It's less about a script and more about knowing what stage a customer is at and what they need from us next.</p>
-      <p><em>[Supervisor note: replace this with our actual sales process, targets, and hand-off points between roles — click "Enable editing" to update it.]</em></p>`
+      <p><em>[Supervisor note: replace this with our actual sales process, targets, and hand-off points between roles — click "Enable editing" to update it.]</em></p>`,
+    takeaways: [
+      '<strong>Discovery first</strong>: understand the person and their situation before you talk about panels.',
+      '<strong>Educate, don&rsquo;t just enthuse</strong> &mdash; build genuine understanding so customers make an informed choice.',
+      'Size the proposal <strong>to the customer</strong>, not to the maximum the roof could hold.',
+      'Close on <strong>clarity, not pressure</strong>, and handle objections by listening and being straight.'
+    ]
   },
   aftersales: {
     title: "After Sales Process",
-    body: `<p>Selling the job is only half the story — what happens between "sold" and "switched on" (and beyond) shapes how the customer feels about us long after you've moved on to the next lead. Here's the handoff chain.</p>`
+    body: `<p>Selling the job is only half the story — what happens between "sold" and "switched on" (and beyond) shapes how the customer feels about us long after you've moved on to the next lead. Here's the handoff chain.</p>`,
+    takeaways: [
+      'Once a customer accepts, the job moves into After Sales: <strong>survey &rarr; review &rarr; scheduling &rarr; install &rarr; support</strong>.',
+      'A <strong>technical survey</strong> confirms the proposed system is actually workable on site.',
+      'Roofing &amp; electrical teams review, then it returns to the <strong>sales coordinator</strong> to confirm any changes with the customer before scheduling.',
+      'Keep the customer <strong>informed throughout</strong>, and hand over to after-sales support once the system is installed and commissioned.'
+    ]
   },
   seai: {
     title: "SEAI",
-    body: `<p>SEAI (the Sustainable Energy Authority of Ireland) runs the grant schemes that fund most of our customers' solar installs. We work exclusively through the <strong>Individual Grant</strong> route, but it's worth knowing the other two schemes exist so you can answer questions accurately if a customer asks about them.</p>
-      <div class="key-takeaways"><div class="kt-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="5"/><path d="M10.5 12.5 21 2"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2.5 2.5"/></svg>Key Takeaways</div><ul><li>We only use the <strong>Individual Grant</strong> route — €700/kWp for the first 2kWp, then €200/kWp, capped at <strong>€1,800</strong> for 4kWp+ systems.</li><li><strong>Never start an install</strong> until the homeowner has their Letter of Offer.</li><li>Property must be built &amp; occupied <strong>before 2021</strong>, and it's <strong>one grant per property</strong> (tracked by MPRN).</li><li>The grant is paid to the <strong>homeowner</strong> after works and documentation (Declaration of Works, BER) are submitted.</li><li><strong>OSS</strong> and <strong>Warmer Homes</strong> aren't our route — just know they exist so you can answer questions and point customers to SEAI.</li></ul></div>`
+    body: `<p>SEAI (the Sustainable Energy Authority of Ireland) runs the grant schemes that fund most of our customers' solar installs. We work exclusively through the <strong>Individual Grant</strong> route, but it's worth knowing the other two schemes exist so you can answer questions accurately if a customer asks about them.</p>`,
+    takeaways: [
+      'We only use the <strong>Individual Grant</strong> route &mdash; &euro;700/kWp for the first 2kWp, then &euro;200/kWp, capped at <strong>&euro;1,800</strong> for 4kWp+ systems.',
+      '<strong>Never start an install</strong> until the homeowner has their Letter of Offer.',
+      'Property must be built &amp; occupied <strong>before 2021</strong>, and it&rsquo;s <strong>one grant per property</strong> (tracked by MPRN).',
+      'The grant is paid to the <strong>homeowner</strong> after works and documentation (Declaration of Works, BER) are submitted.',
+      '<strong>OSS</strong> and <strong>Warmer Homes</strong> aren&rsquo;t our route &mdash; know they exist so you can answer questions and point customers to SEAI.'
+    ]
   },
   crm: {
     title: "Using Our CRM",
@@ -768,7 +794,13 @@ const DEFAULT_CONTENT = {
   },
   howsolar: {
     title: "How Solar Works",
-    body: `<p>Before getting into our specific equipment, it helps to understand the basic idea behind solar PV — this is the plain-English version you'll lean on constantly when explaining things to customers.</p>`
+    body: `<p>Before getting into our specific equipment, it helps to understand the basic idea behind solar PV — this is the plain-English version you'll lean on constantly when explaining things to customers.</p>`,
+    takeaways: [
+      'Panels use the <strong>photovoltaic effect</strong>: sunlight (photons) knocks electrons loose in silicon cells to make DC electricity.',
+      'The <strong>inverter</strong> (SigenStor) converts that DC into the AC that homes and the grid actually use.',
+      'Power follows a priority order: <strong>use it now &rarr; store it &rarr; export the surplus</strong> to the grid.',
+      'Simple customer version: generate by day, store the excess, use the battery in the evening, and top up from the grid only when needed.'
+    ]
   },
   other: {
     title: "Other Training",
@@ -1982,6 +2014,14 @@ function svgWrap(inner){
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${inner||''}</svg>`;
 }
 
+// Build the orange "Key Takeaways" box from an array of bullet HTML strings.
+function buildTakeawaysBox(items){
+  const box = document.createElement('div');
+  box.className = 'key-takeaways';
+  box.innerHTML = `<div class="kt-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="5"/><path d="M10.5 12.5 21 2"/><path d="M16 7l3 3"/><path d="M13.5 9.5l2.5 2.5"/></svg>Key Takeaways</div><ul>${items.map(t=>`<li>${t}</li>`).join('')}</ul>`;
+  return box;
+}
+
 function renderContent(){
   const wrap = document.getElementById('contentWrap');
   const def = SECTION_DEFS.find(s=>s.id===currentSection);
@@ -2055,6 +2095,16 @@ function renderContent(){
   attachContentHandlers(def);
   if(def.hasCards) renderCardGrid(def);
   if(def.id==='howsolar') attachPriorityTableHandlers();
+
+  // Key Takeaways box at the bottom of the section. When the section has a card
+  // grid, it drops in as the final grid cell (beside the last card); otherwise
+  // it sits full-width under the body.
+  if(Array.isArray(c.takeaways) && c.takeaways.length){
+    const kt = buildTakeawaysBox(c.takeaways);
+    const grid = wrap.querySelector('#cardGrid');
+    if(grid){ kt.classList.add('kt-grid'); grid.appendChild(kt); }
+    else { wrap.appendChild(kt); }
+  }
 
   if(def.hasSubgroups){
     def.subgroups.forEach(sg=> renderEquipmentGrid(sg.id));
