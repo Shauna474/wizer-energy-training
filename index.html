@@ -1303,17 +1303,9 @@ async function loadAll(){
     });
   }
 
-  // One-time catch-up: add the Roof Types Reference Guide poster cards if missing
-  if(cards.roofing){
-    const hasPosters = cards.roofing.some(c => /roof types reference guide/i.test(stripHtml(c.title||'')));
-    if(!hasPosters){
-      const posterCards = DEFAULT_CARDS.roofing.filter(c => /roof types reference guide/i.test(c.title||''));
-      if(posterCards.length){
-        posterCards.forEach(pc => cards.roofing.push(JSON.parse(JSON.stringify(pc))));
-        cardsChanged = true;
-      }
-    }
-  }
+  // (Removed) The "Roof Types Reference Guide" poster cards used to be re-seeded here
+  // whenever none were present — which made manual deletions reappear on the next
+  // load. Removed so that deleting those cards actually sticks.
 
 
   // One-time catch-up: seed the Do's & Don'ts and How Solar Works sections for older installs
